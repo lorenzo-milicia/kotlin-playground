@@ -1,7 +1,6 @@
-package classes
+package playground.classes
 
 import org.junit.jupiter.api.Test
-import javax.xml.crypto.Data
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
@@ -152,15 +151,15 @@ data class DataPersonWithEmail(
 interface IEmail
 
 class Email(
-	val localPart: String = "localpart",
-	val domain: String = "domain.com"
+	private val localPart: String = "localpart",
+	private val domain: String = "domain.com"
 ): IEmail {
 	override fun toString() = "$localPart@$domain"
 }
 
 data class DataEmail(
-	val localPart: String = "localpart",
-	val domain: String = "domain.com"
+	private val localPart: String = "localpart",
+	private val domain: String = "domain.com"
 ): IEmail {
 	override fun toString() = "$localPart@$domain"
 }
