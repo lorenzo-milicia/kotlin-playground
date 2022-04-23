@@ -3,6 +3,7 @@ package playground.errorhandling
 import errorhandling.Failure
 import errorhandling.Reason
 import errorhandling.Success
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
 typealias EitherFailureOrResponse<T, U> = Pair<Failure<T>?, ResponseEntity<U>?>
@@ -13,9 +14,9 @@ object WhateverReason: TestFailureReason() {
 	override val explanation: String = "It failed for whatever reason"
 }
 
-fun TestFailureReason.toResponseEntity(): ResponseEntity<String> =
+fun TestFailureReason.toErrorResponse(status: HttpStatus): ResponseEntity<String> =
 	when (this) {
-		WhateverReason -> ResponseEntity.badRequest().body(explanation)
+		WhateverReason -> ResponseEntity.status(status).body(explanation)
 	}
 
 

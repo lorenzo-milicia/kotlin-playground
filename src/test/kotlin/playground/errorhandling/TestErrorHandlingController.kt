@@ -1,5 +1,6 @@
 package playground.errorhandling
 
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
 class TestErrorHandlingController(
@@ -13,7 +14,7 @@ class TestErrorHandlingController(
 			}
 			.onFailure {
 				when (it) {
-					WhateverReason -> ResponseEntity.badRequest().body(it.explanation)
+					WhateverReason -> it.toErrorResponse(HttpStatus.BAD_REQUEST)
 				}
 			}
 }
