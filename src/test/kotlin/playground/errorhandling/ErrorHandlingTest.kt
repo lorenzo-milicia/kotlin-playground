@@ -33,17 +33,35 @@ class ErrorHandlingTest {
 		val result = failureFunction()
 
 		assertIs<Failure<TestFailureReason>>(result)
-			.also { println(result.reason) }
+			.also { println(result.reason.explanation) }
+	}
+
+	@Test
+	internal fun `A succedd is mapped to an ok status response`() {
+		val requestHandler =
+			fun(_: String): Result<String, TestFailureReason> {
+				return Success("This test was a success!")
+			}
+
+		val controller = TestErrorHandlingController(requestHandler)
+
+		val response = controller.handleRequest("Test Request")
+
+		assertEquals(HttpStatus.OK, response.statusCode).also { println(response.body) }
 	}
 
 	@Test
 	internal fun `A failure for whatever reason is mapped to a bad request HTTP response`() {
-		val failureReason: TestFailureReason = WhateverReason
+		val requestHandler =
+			fun(_: String): Result<String, TestFailureReason> {
+				return Failure(WhateverReason)
+			}
 
-		val result = failureReason.toResponseEntity()
+		val controller = TestErrorHandlingController(requestHandler)
 
-		assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
-			.also { println(result.body) }
+		val response = controller.handleRequest("Test Request")
+
+		assertEquals(HttpStatus.BAD_REQUEST, response.statusCode).also { println(response.body) }
 	}
 }
 
