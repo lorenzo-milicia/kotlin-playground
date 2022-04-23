@@ -40,10 +40,10 @@ class ErrorHandlingTest {
 	internal fun `A failure for whatever reason is mapped to a bad request HTTP response`() {
 		val failureReason: TestFailureReason = WhateverReason
 
-		val result = failureReason.toHttpResponse()
+		val result = failureReason.toResponseEntity()
 
 		assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
-		assertIs<errorhandling.Error>(result.body)
+			.also { println(result.body) }
 	}
 }
 
