@@ -1,32 +1,32 @@
 package errorhandling
 
-sealed class Result<out T, out E: Reason>
+sealed class Result<out Success, out Failure: Reason>
 
-data class Success<out T>(val value: T): Result<T, Nothing>()
-data class Failure<out E: Reason>(val reason: E): Result<Nothing, E>()
+data class Success<out Value>(val value: Value): Result<Value, Nothing>()
+data class Failure<out Fail: Reason>(val reason: Fail): Result<Nothing, Fail>()
 
-sealed class EitherValueOrFailure<out R, out F: Reason>
+sealed class EitherValueOrFailure<out Value, out Failure: Reason>
 
-data class ProcessedValue<out S>(val body: S): EitherValueOrFailure<S, Nothing>()
+data class ProcessedValue<out Value>(val body: Value): EitherValueOrFailure<Value, Nothing>()
 
-data class UnprocessedFailure<F: Reason>(val failure: Failure<F>): EitherValueOrFailure<Nothing, F>()
+data class UnprocessedFailure<Fail: Reason>(val failure: Failure<Fail>): EitherValueOrFailure<Nothing, Fail>()
 
 
-fun <S, F: Reason, R> Result<S, F>.onSuccess(map: (S) -> R): EitherValueOrFailure<R, F> {
+fun <Succ, Fail: Reason, T> Result<Succ, Fail>.onSuccess(map: (Succ) -> T): EitherValueOrFailure<T, Fail> {
 	return when (this) {
 		is Success -> ProcessedValue(map(this.value))
 		is Failure -> UnprocessedFailure(this)
 	}
 }
 
-fun <R, F: Reason> EitherValueOrFailure<R, F>.onFailure(map: (F) -> R): R {
+fun <Value, Fail: Reason> EitherValueOrFailure<Value, Fail>.onFailure(map: (Fail) -> Value): Value {
 	return when (this) {
 		is ProcessedValue     -> this.body
 		is UnprocessedFailure -> map(this.failure.reason)
 	}
 }
 
-fun <S, F: Reason, P> Result<S, F>.pipe(operation: (S) -> P): Result<P, F> {
+fun <In, Fail: Reason, Out> Result<In, Fail>.pipe(operation: (In) -> Out): Result<Out, Fail> {
 	return when (this) {
 		is Success -> Success(operation(this.value))
 		is Failure -> this
