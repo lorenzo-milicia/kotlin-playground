@@ -27,7 +27,7 @@ class ErrorHandlingTest {
 	internal fun `A function that returns a Failure`() {
 		val failureFunction =
 			fun(): Result<String, TestFailureReason> {
-				return Failure(WhateverReason)
+				return Failure(InvalidStuff)
 			}
 
 		val result = failureFunction()
@@ -54,7 +54,7 @@ class ErrorHandlingTest {
 	internal fun `A failure for whatever reason is mapped to a bad request HTTP response`() {
 		val requestHandler =
 			fun(_: String): Result<String, TestFailureReason> {
-				return Failure(WhateverReason)
+				return Failure(InvalidStuff)
 			}
 
 		val controller = TestErrorHandlingController(requestHandler)

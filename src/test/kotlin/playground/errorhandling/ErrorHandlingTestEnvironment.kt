@@ -6,12 +6,11 @@ import org.springframework.http.ResponseEntity
 
 sealed class TestFailureReason: Reason
 
-object WhateverReason: TestFailureReason() {
+object InvalidStuff: TestFailureReason() {
 
 	override val explanation: String = "It failed for whatever reason"
 }
 
-fun TestFailureReason.toErrorResponse(status: HttpStatus): ResponseEntity<String> =
-	when (this) {
-		WhateverReason -> ResponseEntity.status(status).body(explanation)
-	}
+fun Reason.toErrorResponse(status: HttpStatus): ResponseEntity<String> =
+		ResponseEntity.status(status).body(explanation)
+

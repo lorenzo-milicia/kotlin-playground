@@ -20,7 +20,7 @@ class TestErrorHandlingController(
 			}
 			.onFailure {
 				when (it) {
-					WhateverReason -> it.toErrorResponse(HttpStatus.BAD_REQUEST)
+					InvalidStuff -> it.toErrorResponse(HttpStatus.BAD_REQUEST)
 				}
 			}
 }
