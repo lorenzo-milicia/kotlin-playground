@@ -9,6 +9,9 @@ class TestErrorHandlingController(
 
 	fun handleRequest(request: String): ResponseEntity<String> =
 		mockRequestHandlerMethod(request)
+			.pipe {
+				"$it - But with some extra steps"
+			}
 			.onSuccess {
 				ResponseEntity.ok(it)
 			}
