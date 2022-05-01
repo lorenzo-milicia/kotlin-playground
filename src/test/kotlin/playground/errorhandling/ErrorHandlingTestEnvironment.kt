@@ -20,14 +20,34 @@ fun TestFailureReason.toErrorResponse(status: HttpStatus): ResponseEntity<String
 	}
 
 
-fun <T, E: Reason, R> errorhandling.Result<T, E>.onSuccess(map: (T) -> ResponseEntity<R>): EitherFailureOrResponse<E, R> {
+sealed class ProcessedResult<T, E: Reason> 
+
+data class FailedResult<E: Reason>(
+	val failure: Failure<E>
+) : ProcessedResult<Nothing, E>
+
+data class SuccessResult<T>(
+	val body: T
+): ProcessedResult<T, Nothing>
+
+fun <T, E: Reason, R> errorhandling.Result<T, E>.onSuccess(map: (T) -> R): ProcessedResult<E, R> {
 	return when (this) {
-		is Success -> Pair(null, map(this.value))
-		is Failure -> Pair(this, null)
+		is Success -> ProcessedResult(map(this))
+		is Failure -> FailedResult(this)
 	}
 }
 
-fun <E: Reason, R> EitherFailureOrResponse<E, R>.onFailure(map: (E) -> ResponseEntity<R>): ResponseEntity<R> {
-	return first?.let{map(it.reason)} ?: second!!
+fun <E: Reason, R> ProcessedResult<E, R>.onFailure(map: (E) -> R): R {
+	return when (this) {
+		is SuccessResult -> this.body
+		is FailedResult -> map(this.failure)
+	}
+}
+
+fun <T, E: Reason, P> errorhandling.Result<T, E>.pipe(operation: (T) -> errorhandling.Result<P, E>): errorhandling.Result<P, E> {
+	return when (this) {
+		is Success -> operation(this.value)
+		is Failure -> this
+	}
 }
 
