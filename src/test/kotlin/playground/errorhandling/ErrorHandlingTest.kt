@@ -3,8 +3,10 @@ package playground.errorhandling
 import errorhandling.Failure
 import errorhandling.Result
 import errorhandling.Success
+import errorhandling.pipe
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
@@ -37,7 +39,7 @@ class ErrorHandlingTest {
 	}
 
 	@Test
-	internal fun `A succedd is mapped to an ok status response`() {
+	internal fun `A success is mapped to an ok status response`() {
 		val requestHandler =
 			fun(_: String): Result<String, TestFailureReason> {
 				return Success("This test was a success!")
@@ -62,6 +64,27 @@ class ErrorHandlingTest {
 		val response = controller.handleRequest("Test Request")
 
 		assertEquals(HttpStatus.BAD_REQUEST, response.statusCode).also { println(response.body) }
+	}
+
+	@Test
+	internal fun `Piping a Success`() {
+		val success = Success("This is a success!")
+
+		val result =
+			success.pipe { ResponseEntity.ok("$it And now it got piped to something else.") }
+
+		assertIs<Success<ResponseEntity<String>>>(result)
+	}
+
+	@Test
+	internal fun `Piping a Failure`() {
+		val failure = Failure(InvalidStuff)
+
+		val result =
+			failure.pipe { ResponseEntity.ok("This should never get here") }
+
+		assertIs<Failure<TestFailureReason>>(result)
+		assertEquals(InvalidStuff, result.reason)
 	}
 }
 
