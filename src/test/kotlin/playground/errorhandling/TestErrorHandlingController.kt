@@ -1,5 +1,8 @@
 package playground.errorhandling
 
+import errorhandling.onFailure
+import errorhandling.onSuccess
+import errorhandling.pipe
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
@@ -10,7 +13,7 @@ class TestErrorHandlingController(
 	fun handleRequest(request: String): ResponseEntity<String> =
 		mockRequestHandlerMethod(request)
 			.pipe {
-				"$it - But with some extra steps"
+				"$it - But with some extra stuff"
 			}
 			.onSuccess {
 				ResponseEntity.ok(it)
