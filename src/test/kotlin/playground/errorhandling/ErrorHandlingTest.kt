@@ -1,9 +1,9 @@
 package playground.errorhandling
 
-import errorhandling.Failure
-import errorhandling.Result
-import errorhandling.Success
-import errorhandling.pipe
+import com.errorhandling.Failure
+import com.errorhandling.Result
+import com.errorhandling.Success
+import com.errorhandling.pipe
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

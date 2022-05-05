@@ -1,6 +1,6 @@
 package playground.errorhandling
 
-import errorhandling.Reason
+import com.errorhandling.Reason
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 

@@ -1,4 +1,4 @@
-package errorhandling
+package com.errorhandling
 
 sealed class Result<out Success, out Failure: Reason>
 

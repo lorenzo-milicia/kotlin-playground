@@ -1,9 +1,9 @@
-package playground
+package com
 
-import org.springframework.boot.SpringBootConfiguration
+import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@SpringBootConfiguration
+@SpringBootApplication
 class KotlinPlaygroundApplication
 
 fun main(args: Array<String>) {

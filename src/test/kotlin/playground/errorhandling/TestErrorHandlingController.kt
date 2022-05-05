@@ -1,13 +1,14 @@
 package playground.errorhandling
 
-import errorhandling.onFailure
-import errorhandling.onSuccess
-import errorhandling.pipe
+import com.errorhandling.Result
+import com.errorhandling.onFailure
+import com.errorhandling.onSuccess
+import com.errorhandling.pipe
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
 class TestErrorHandlingController(
-	val mockRequestHandlerMethod: (String) -> errorhandling.Result<String, TestFailureReason>,
+	val mockRequestHandlerMethod: (String) -> Result<String, TestFailureReason>,
 ) {
 
 	fun handleRequest(request: String): ResponseEntity<String> =
