@@ -8,10 +8,10 @@ class Job(
 	execute: Job.() -> Unit,
 ): IJob() {
 
-	lateinit var id: UUID
-	lateinit var startedAt: LocalDateTime
-	lateinit var endedAt: LocalDateTime
-	var status: JobStatus = JobStatus.IN_PROGRESS
+	override lateinit var id: UUID
+	override lateinit var startedAt: LocalDateTime
+	override lateinit var endedAt: LocalDateTime
+	override var status: JobStatus = JobStatus.IN_PROGRESS
 
 	override val tasks: MutableList<IJob.Task> = mutableListOf()
 
@@ -19,36 +19,34 @@ class Job(
 		start()
 		try {
 			this.execute()
-			closeJob(JobStatus.OK)
+			close(JobStatus.OK)
 		}
 		catch (e: Exception) {
 			println("Whoops, an exception got caught: ${e.message}")
-			closeJob(JobStatus.KO)
+			close(JobStatus.KO)
 		}
 	}
 
-	private fun start() {
-		id = UUID.randomUUID()
-		startedAt = LocalDateTime.now()
-		println("Job started")
+	override fun start() {
+		super.start()
 		repository.saveJob(this)
 	}
 
-	private fun closeJob(status: JobStatus) {
-		endedAt = LocalDateTime.now()
-		this.status = status
-		println("Job closed with status ${status.name}")
+	override fun close(status: JobStatus) {
+		super.close(status)
 		repository.saveJob(this)
 	}
 
 	inner class DataTask(
+		override val context: DataTaskContext,
 		execute: DataTask.() -> Unit
 	): IJob.Task() {
 
 		override lateinit var id: UUID
 		override lateinit var startedAt: LocalDateTime
 		override lateinit var endedAt: LocalDateTime
-		override val repository: IJobRepository = this@Job.repository
+
+		val repository: IJobRepository = this@Job.repository
 
 		override var type: TaskEnum = TaskEnum.DATA
 
@@ -56,32 +54,24 @@ class Job(
 			start()
 			try {
 				execute()
-				closeTask()
+				close()
 			}
 			catch (e: Exception) {
-				closeTask()
+				close()
 				throw e
 			}
-		}
-
-		fun fetchData(): Data {
-			println("Fetching data...")
-			return Data()
-		}
-
-		fun processData(data: Data) {
-			println("Processing data")
 		}
 	}
 
 	inner class NotificationTask(
+		override val context: NotificationTaskContext,
 		execute: NotificationTask.() -> Unit
 	): IJob.Task() {
 
 		override lateinit var id: UUID
 		override lateinit var startedAt: LocalDateTime
 		override lateinit var endedAt: LocalDateTime
-		override val repository: IJobRepository = this@Job.repository
+		val repository: IJobRepository = this@Job.repository
 
 		override var type: TaskEnum = TaskEnum.NOTIFICATION
 
@@ -89,10 +79,10 @@ class Job(
 			start()
 			try {
 				execute()
-				closeTask()
+				close()
 			}
 			catch (e: Exception) {
-				closeTask()
+				close()
 				throw e
 			}
 		}

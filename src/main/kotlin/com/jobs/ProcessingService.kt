@@ -9,11 +9,11 @@ class ProcessingService(
 
 	fun handleData() {
 		Job(jobLogRepository) {
-			DataTask {
+			DataTask(DataTaskContext()) {
 				val data = fetchData()
 				processData(data)
 			}
-			NotificationTask {
+			NotificationTask(NotificationTaskContext()) {
 				sendNotifications()
 			}
 		}
