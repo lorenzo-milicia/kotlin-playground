@@ -30,12 +30,12 @@ class RowToDomainTest {
 
 		val domain = rows.groupBy(
 			keySelector = { it.nameKey },
-			valueTransform = { it.language }
-		).map {(name, language) ->
+			valueTransform = { it.languageKey }
+		).map { (name, languages) ->
 			Person(
 				name = Name(name.name, name.surname),
-				spokenLanguages = language.map {
-					Language(it.name, it.abbreviation)
+				spokenLanguages = languages.map {
+					Language(it.languageName, it.languageAbbreviation)
 				}
 			)
 		}
@@ -58,11 +58,16 @@ class RowToDomainTest {
 		val surname: String,
 	)
 
+	private data class LanguageKey(
+		val languageName: String,
+		val languageAbbreviation: String,
+	)
+
 	private val PersonRow.nameKey: NameKey
 		get() = NameKey(name, surname)
 
-	private val PersonRow.language: Language
-		get() = Language(spokenLanguage, spokenLanguageAbbreviation)
+	private val PersonRow.languageKey: LanguageKey
+		get() = LanguageKey(spokenLanguage, spokenLanguageAbbreviation)
 
 	data class Person(
 		val name: Name,
