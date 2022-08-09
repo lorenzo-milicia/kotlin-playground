@@ -1,0 +1,61 @@
+openapi: 3.0.0
+info:
+  title: OpenAPI example
+  description: Experimenting with OpenAPI and classes generation
+  version: 1.0.0
+tags:
+  - name: article
+    description: Article CRUD API
+paths:
+  /article:
+    post:
+      tags:
+        - article
+      summary: Insert a new article
+      description: Insert a new article
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+      responses:
+        '200':
+          description: The article was inserted successfully
+components:
+  schemas:
+    Article:
+      type: object
+      properties:
+        code:
+          type: string
+        pricing:
+          type: string
+      discriminator:
+        propertyName: pricing
+        mapping:
+          full: '#/components/schemas/FullPriceArticle'
+          discounted: '#/components/schemas/DiscountedArticle'
+
+    FullPriceArticle:
+      allOf:
+      - $ref: '#/components/schemas/Article'
+      - type: object
+        properties:
+          description:
+            type: string
+          price:
+            type: number
+
+    DiscountedArticle:
+      allOf:
+      - $ref: '#/components/schemas/Article'
+      - type: object
+        properties:
+          description:
+            type: string
+          fullPrice:
+            type: number
+          discount:
+            type: number
+            format: double
