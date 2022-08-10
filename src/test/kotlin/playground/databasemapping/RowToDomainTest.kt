@@ -40,6 +40,20 @@ class RowToDomainTest {
 			)
 		}
 
+		val domainFromInterface =
+			rows
+				.map { it.toManyToOneRow() }
+				.groupByKey { nameKey, languageKeys ->
+					Person(
+						name = Name(nameKey.name, nameKey.surname),
+						spokenLanguages = languageKeys.map {
+							Language(it.languageName, it.languageAbbreviation)
+						}
+					)
+				}
+
+		assertEquals(domain, domainFromInterface)
+
 		assertEquals(1, domain.size)
 		val person = domain.first()
 		assertEquals(3, person.spokenLanguages.size)
@@ -52,6 +66,10 @@ class RowToDomainTest {
 		val spokenLanguageAbbreviation: String,
 	)
 
+	private data class PersonRowKey(
+		override val groupingKey: NameKey,
+		override val manyToOneField: LanguageKey
+	): ManyToOneRow<NameKey, LanguageKey>
 
 	private data class NameKey(
 		val name: String,
@@ -69,6 +87,12 @@ class RowToDomainTest {
 	private val PersonRow.languageKey: LanguageKey
 		get() = LanguageKey(spokenLanguage, spokenLanguageAbbreviation)
 
+	private fun PersonRow.toManyToOneRow(): PersonRowKey =
+		PersonRowKey(
+			groupingKey = nameKey,
+			manyToOneField = languageKey
+		)
+
 	data class Person(
 		val name: Name,
 		val spokenLanguages: List<Language>,
@@ -84,3 +108,17 @@ class RowToDomainTest {
 		val abbreviation: String,
 	)
 }
+
+interface ManyToOneRow<K, G> {
+
+	val groupingKey: K
+	val manyToOneField: G
+}
+
+fun <R: ManyToOneRow<K, G>, K, G, T> List<R>.groupByKey(transform: (K, List<G>) -> T): List<T> =
+	groupBy(
+		keySelector = { it.groupingKey },
+		valueTransform = { it.manyToOneField }
+	).map { (key, list) ->
+		transform(key, list)
+	}
