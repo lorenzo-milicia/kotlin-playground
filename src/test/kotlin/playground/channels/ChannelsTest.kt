@@ -1,38 +1,33 @@
 package playground.channels
 
+import kotlinx.coroutines.*
 import org.junit.jupiter.api.Test
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 internal class ChannelsTest {
-
 
 	@Test
 	internal fun `Stream of objects`() {
 		runBlocking {
-			val channel = Channel<Something>()
-			launch {
-				fetchBatches(channel)
-			}
-			handleBatch(channel)
+			val batches = fetchBatches()
+			batches.handleBatches()
 		}
 	}
 
-
-	private suspend fun fetchBatches(channel: Channel<Something>) {
+	@OptIn(ExperimentalCoroutinesApi::class)
+	private fun CoroutineScope.fetchBatches() = produce(capacity = 2) {
 		repeat(5) {
-			channel.send(Something(it.toString(), "Something n. $it"))
-			delay(1000)
+			println("Fetching batch $it")
+			delay(500)
+			send(Something(it.toString(), "Something n. $it"))
+			println("Batch $it sent")
 		}
-		channel.close()
 	}
 
-	private suspend fun handleBatch(channel: Channel<Something>) {
-		channel.consumeEach {
+	private suspend fun ReceiveChannel<Something>.handleBatches() {
+		consumeEach {
 			println("Got batch ${it.id}...working on it")
-			delay(500)
+			delay(1000)
 			println("Done with batch ${it.id}")
 		}
 	}
